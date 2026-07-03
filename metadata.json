@@ -1,0 +1,6 @@
+{
+  "name": "MockMind",
+  "description": "An interactive, full-stack AI mock interview platform that uses Gemini to deliver tailored questions, dynamic follow-ups, real-time background scoring, and structured feedback reports.",
+  "requestFramePermissions": ["microphone", "camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
