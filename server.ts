@@ -3,7 +3,6 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { GoogleGenAI, Type } from '@google/genai';
 import dotenv from 'dotenv';
-import { createServer as createViteServer } from 'vite';
 
 dotenv.config();
 
@@ -11,9 +10,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = 3000;
+const PORT = parseInt(process.env.PORT || '3000', 10);
 
-// Initialize Gemini SDK with telemetry header
 const apiKey = process.env.GEMINI_API_KEY;
 if (!apiKey) {
   console.warn('WARNING: GEMINI_API_KEY is not set. Gemini API calls will fail.');
@@ -221,25 +219,32 @@ ${JSON.stringify(history, null, 2)}
   }
 });
 
-// Configure Vite middleware in development or serve static files in production
-async function startServer() {
-  if (process.env.NODE_ENV !== 'production') {
-    const vite = await createViteServer({
-      server: { middlewareMode: true },
-      appType: 'spa',
-    });
-    app.use(vite.middlewares);
-  } else {
-    const distPath = path.join(process.cwd(), 'dist');
-    app.use(express.static(distPath));
-    app.get('*', (req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
+// Export the Express app for Vercel serverless
+export default app;
+
+// Run the server locally (not on Vercel)
+if (!process.env.VERCEL) {
+  // Development: use Vite middleware. Production: serve static files.
+  async function startServer() {
+    if (process.env.NODE_ENV !== 'production') {
+      const { createServer: createViteServer } = await import('vite');
+      const vite = await createViteServer({
+        server: { middlewareMode: true },
+        appType: 'spa',
+      });
+      app.use(vite.middlewares);
+    } else {
+      const distPath = path.join(process.cwd(), 'dist');
+      app.use(express.static(distPath));
+      app.get('*', (req, res) => {
+        res.sendFile(path.join(distPath, 'index.html'));
+      });
+    }
+
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`Server running on http://0.0.0.0:${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
     });
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server running on http://0.0.0.0:${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
-  });
+  startServer();
 }
-
-startServer();
