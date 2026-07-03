@@ -113,7 +113,19 @@ npm start
 
 ## Deployment
 
-This app is a full-stack Node.js application. You can deploy it to any platform that supports Node.js:
+This app is a full-stack Node.js application. You can deploy it to any platform that supports Node.js.
+
+### Deploy on Vercel (Recommended)
+
+1. Push the repo to GitHub (already done)
+2. Go to [Vercel](https://vercel.com) and sign in with GitHub
+3. Click **Add New** → **Project**
+4. Import the `Ai-Interview` repository
+5. In **Environment Variables**, add:
+   - `GEMINI_API_KEY` = your Gemini API key
+6. Click **Deploy** — Vercel auto-detects the config from `vercel.json`
+
+The app includes a `vercel.json` that configures Vite builds and routes API calls to the Express serverless function.
 
 ### Deploy on Render
 
